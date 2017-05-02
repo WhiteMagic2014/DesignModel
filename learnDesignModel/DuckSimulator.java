@@ -12,7 +12,7 @@ public class DuckSimulator {
 //		mallard.display();
 //		mallard.performFly();
 //		mallard.performQuack();
-		
+//		
 //		Duck mode = new ModelDuck();
 //		mode.display();
 //		mode.performFly();

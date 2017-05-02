@@ -5,15 +5,15 @@ public class Quick {
 	
 	/**
 	 * 快排
-	 * @param left
-	 * @param right
+	 * @param leftIndex
+	 * @param rightIndex
 	 * @param array
 	 */
-	public void sort(int left ,int right, int[] array) {
+	public void sort(int leftIndex ,int rightIndex, int[] array) {
 		
-		int l = left;
-		int r = right;
-		int pivot = array[(left+right)/2];
+		int l = leftIndex;
+		int r = rightIndex;
+		int pivot = array[(leftIndex+rightIndex)/2];
 		int temp = 0;
 		
 		while (l<r) {
@@ -36,7 +36,7 @@ public class Quick {
 			r--;
 		}
 		
-		if(left<r) sort(left, r, array);
-		if(right>l) sort(l, right, array);
+		if(leftIndex<r) sort(leftIndex, r, array);
+		if(rightIndex>l) sort(l, rightIndex, array);
 	}
 }
