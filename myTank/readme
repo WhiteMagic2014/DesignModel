@@ -1,0 +1,12 @@
+//		//随便画画
+//		g.drawOval(10, 10, 30, 30);
+//		
+//		//画图片
+//		Image im = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/bike_icon.png"));
+//		g.drawImage(im, 50, 50, 150, 150, this);
+//		
+//		//画字
+//		g.setColor(Color.BLUE);
+//		g.setFont(new Font("宋体", Font.BOLD, 30));
+//		g.drawString("啦啦啦", 100, 100);
+		
