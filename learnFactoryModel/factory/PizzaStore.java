@@ -1,4 +1,4 @@
-package learnFactoryModel.factory_1;
+package learnFactoryModel.factory;
 
 import learnFactoryModel.pizza.*;
 
