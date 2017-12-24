@@ -16,6 +16,9 @@ public class Tank {
 	Color color = Color.WHITE;// 所有坦克默认白色
 	Vector<Bullet> bullets = new Vector<Bullet>();
 	Bullet bullet = null;
+	Judge judge = new Judge();
+
+	Vector<Tank> otherTanks = null;
 
 	public Tank(int x, int y) {
 		this.x = x;
@@ -51,6 +54,46 @@ public class Tank {
 		// 给每一个子弹开一个线程
 		Thread t = new Thread(bullet);
 		t.start();
+
+	}
+
+	public void setOtherTanks(Vector<Tank> vt) {
+		this.otherTanks = vt;
+	}
+
+	public boolean isTouchedOtherTank() {
+		return judge.isTouchedOtherTank(this, otherTanks);
+	}
+
+	public void moveUp() {
+		this.direct = 0;
+		if (this.y > 0 && !this.isTouchedOtherTank()) {
+			y -= speed;
+		}
+
+	}
+
+	public void moveDown() {
+		this.direct = 1;
+		if ((this.y < Simulator.LENGTH - 30) && !this.isTouchedOtherTank()) {
+			y += speed;
+		}
+
+	}
+
+	public void moveLeft() {
+		this.direct = 2;
+		if (this.x > 0 && !this.isTouchedOtherTank()) {
+			x -= speed;
+		}
+
+	}
+
+	public void moveRight() {
+		this.direct = 3;
+		if ((this.x < Simulator.WIDTH - 30) && !this.isTouchedOtherTank()) {
+			x += speed;
+		}
 
 	}
 
@@ -92,38 +135,6 @@ public class Tank {
 
 	public Color getColor() {
 		return color;
-	}
-
-	public void moveUp() {
-		this.direct = 0;
-		if (this.y > 0) {
-			y -= speed;
-		}
-
-	}
-
-	public void moveDown() {
-		this.direct = 1;
-		if (this.y < Simulator.LENGTH - 30) {
-			y += speed;
-		}
-
-	}
-
-	public void moveLeft() {
-		this.direct = 2;
-		if (this.x > 0) {
-			x -= speed;
-		}
-
-	}
-
-	public void moveRight() {
-		this.direct = 3;
-		if (this.x < Simulator.WIDTH - 30) {
-			x += speed;
-		}
-
 	}
 
 }

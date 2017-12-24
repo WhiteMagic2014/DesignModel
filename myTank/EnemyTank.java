@@ -14,8 +14,7 @@ public class EnemyTank extends Tank implements Runnable {
 	}
 
 	@Override
-	public void run() {
-		
+	public void run() {	
 		//这里的其实就是AI 
 		while (true) {
 

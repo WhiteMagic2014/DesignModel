@@ -1,5 +1,7 @@
 package myTank;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,31 +17,39 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 
 	Draw dt = null;
 	MTank magicTank = null;
-	int enemyNum = 3;
 	Vector<EnemyTank> enemyTanks = null;
 	Vector<Bomb> bombs = null;
 	Judge judge = null;
 	Random random = null;
+	Vector<Tank> allTanks = null;
 
 	public MPanle() {
+		Recorder.getInstanceRecorder().readRecord(false);
+
 		dt = new Draw();
 		magicTank = new MTank(50, 100);
 		judge = new Judge();
 		enemyTanks = new Vector<EnemyTank>();// 考虑到多线程，用vector
 		bombs = new Vector<Bomb>();// 爆炸效果
 		random = new Random();
+		allTanks = new Vector<Tank>();
+		allTanks.add(magicTank);
 
 		// 敌方坦克组
-		for (int i = 0; i < enemyNum; i++) {
+		for (int i = 0; i < Recorder.getInstanceRecorder().getEnNum(); i++) {
 			// x= 0-350 y= 0-350 刷怪区域
 			int x = random.nextInt(350);
 			int y = random.nextInt(350);
 			EnemyTank eTank = new EnemyTank(x, y);
 			eTank.setDirect(random.nextInt(3));
 			enemyTanks.add(eTank);
+			allTanks.add(eTank);
+			eTank.setOtherTanks(allTanks);
 			new Thread(eTank).start();
-
 		}
+
+		magicTank.setOtherTanks(allTanks);
+		Recorder.getInstanceRecorder().setEnemyTanks(enemyTanks);
 
 	}
 
@@ -54,39 +64,46 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 		// panle区域
 		g.fillRect(0, 0, Simulator.WIDTH, Simulator.LENGTH);
 
-		// 画己方坦克
-		if (magicTank.isAlive) {
-			dt.drawTank(g, magicTank, 0);
+		// 画info
+		dt.drawinfo(g);
+
+		// 结算
+		if (Recorder.getInstanceRecorder().getEnNum() == 0) {
+			g.setColor(Color.YELLOW);
+			g.drawString("你赢了", Simulator.WIDTH / 2, Simulator.LENGTH / 2);
+		} else if (Recorder.getInstanceRecorder().getMyLife() == 0) {
+			g.setColor(Color.WHITE);
+			g.drawString("GG", Simulator.WIDTH / 2, Simulator.LENGTH / 2);
 		} else {
-			// magicTank = null;
-			// System.out.println("GG");
-			// System.exit(0);
-		}
+			// 画己方坦克
+			if (magicTank.isAlive) {
+				dt.drawTank(g, magicTank, 0);
+			}
+			// 画我的子弹
+			drawbullet(magicTank, g);
+			// 画炸爆炸效果
+			for (int i = 0; i < bombs.size(); i++) {
+				Bomb b = bombs.get(i);
+				dt.drawBomb(g, b, this);
 
-		// 画我的子弹
-		drawbullet(magicTank, g);
-
-		// 画炸爆炸效果
-		for (int i = 0; i < bombs.size(); i++) {
-			Bomb b = bombs.get(i);
-			dt.drawBomb(g, b, this);
-
-			if (b.life == 0) {
-				bombs.remove(b);
+				if (b.life == 0) {
+					bombs.remove(b);
+				}
+			}
+			// 画敌方坦克
+			for (int i = 0; i < enemyTanks.size(); i++) {
+				EnemyTank enemyTank = enemyTanks.get(i);
+				if (enemyTank.isAlive) {
+					dt.drawTank(g, enemyTank, 1);
+				}
+				// 画敌方子弹
+				drawbullet(enemyTank, g);
 			}
 		}
 
-		// 画敌方坦克
-		for (int i = 0; i < enemyTanks.size(); i++) {
-			EnemyTank enemyTank = enemyTanks.get(i);
-
-			if (enemyTank.isAlive) {
-				dt.drawTank(g, enemyTank, 1);
-			}
-			// 画敌方子弹
-			drawbullet(enemyTank, g);
-		}
 	}
+
+	public Boolean needPaint = true;
 
 	/*
 	 * (non-Javadoc)
@@ -96,7 +113,8 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 	@Override
 	public void run() {
 
-		while (true) {
+		while (needPaint) {
+
 			try {
 				Thread.sleep(100);
 			} catch (Exception e) {
@@ -121,6 +139,15 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 					}
 				}
 			}
+
+			if (!magicTank.isAlive) {
+				// 挂了 就判断是不是还有命
+				if (Recorder.getInstanceRecorder().getMyLife() > 0) {
+					Recorder.getInstanceRecorder().setMyLife(Recorder.getInstanceRecorder().getMyLife() - 1);
+					magicTank.isAlive = true;
+				}
+
+			}
 		}
 	}
 
@@ -135,11 +162,17 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 				// 取出敌方坦克
 				for (int j = 0; j < enemyTanks.size(); j++) {
 					EnemyTank eTank = enemyTanks.get(j);
-
 					if (eTank.isAlive) {
 						// 如果bullet 和 tank 都alive 开始判定
 						// 判定接触后将会改变isalive
 						bombjudge(mBullet, eTank);
+						if (!eTank.isAlive) {
+							Recorder.getInstanceRecorder().setEnNum(Recorder.getInstanceRecorder().getEnNum() - 1);
+							Recorder.getInstanceRecorder().setHitAll(Recorder.getInstanceRecorder().getHitAll() + 1);
+							enemyTanks.remove(eTank);
+							allTanks.remove(eTank);
+						}
+
 					}
 
 				}
@@ -207,8 +240,9 @@ public class MPanle extends JPanel implements KeyListener, Runnable {
 
 		// 如果和上面一起 用else if ，那在移动中就无法发射了
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			this.magicTank.shoot();
-
+			if (magicTank.isAlive) {
+				this.magicTank.shoot();
+			}
 		}
 
 		// 重新绘制

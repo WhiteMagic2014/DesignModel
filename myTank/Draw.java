@@ -43,6 +43,12 @@ public class Draw {
 
 	}
 
+	/**
+	 * @param g
+	 * @param bomb
+	 * @param jPanel
+	 * 画爆炸效果
+	 */
 	public void drawBomb(Graphics g, Bomb bomb, JPanel jPanel) {
 
 		if (bomb.life == 8) {
@@ -182,5 +188,25 @@ public class Draw {
 		}
 
 	}
+	
+	
+	public void drawinfo(Graphics g) {
+		
+		Tank meinfo =  new MTank(Simulator.WIDTH + 20, 40);
+		Tank enemyinfo = new EnemyTank(Simulator.WIDTH + 20, 85);
+		
+		// 画标识
+		g.setColor(Color.black);
+		g.drawString("累计消灭"+Recorder.getInstanceRecorder().getHitAll(), Simulator.WIDTH + 55, 24);
+		
+		drawTank(g, meinfo, 0);
+		g.setColor(Color.black);
+		g.drawString(Recorder.getInstanceRecorder().getMyLife() + "", Simulator.WIDTH + 55, 54);
+		drawTank(g, enemyinfo, 0);
+		g.setColor(Color.black);
+		g.drawString(Recorder.getInstanceRecorder().getEnNum() + "", Simulator.WIDTH + 55, 104);
+	}
+	
+	
 
 }
